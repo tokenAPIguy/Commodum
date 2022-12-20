@@ -95,7 +95,12 @@ function NewCmdForm() {
 }
 
 function CmdSearch() {
-  return <div className="cmd-search">🔎...</div>;
+  return (
+    <div className="cmd-form">
+      <input type="text" placeholder="..."></input>
+      <button className="btn btn-large btn-post">🔎</button>
+    </div>
+  );
 }
 
 function CategoryFilter() {
