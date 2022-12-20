@@ -1,38 +1,261 @@
-.App {
-  text-align: center;
+/* HTML */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  background-color: #292524;
+  color: #fafaf9;
+  font-family: "Sono", sans-serif;
+  padding: 48px 64px 0px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+h1 {
+  font-size: 42px;
+  text-transform: uppercase;
+  font-family: "Sono", sans-serif;
+  line-height: 1;
+  margin-top: 6px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+section {
+  overflow: scroll;
+  padding-bottom: 40px;
+}
+
+section::-webkit-scrollbar {
+  display: none;
+}
+
+ul {
+  list-style: none;
+}
+
+/* Classes */
+.break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+.btn {
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  color: inherit;
+  font-family: "Sono", sans-serif;
+  line-height: 1;
+  text-transform: uppercase;
+  font-size: 17px;
+  padding: 16px 0 13px;
+  background-color: #c16121;
+  transition: 0.3s;
+}
+
+.btn-all-cmds {
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.btn-category {
+  width: 100%;
+  background-image: none;
+}
+
+.btn:hover {
+  transform: scale(110%);
+}
+
+.btn-large {
+  font-size: 20px;
+  padding: 20px 32px 17px;
+}
+
+.btn-post {
+  background-color: #1b769c;
+}
+.btn-post:hover {
+  background-color: #35b3e9;
+}
+.category {
+  margin-bottom: 16px;
+}
+
+.container {
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 40px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  justify-content: space-between;
 }
 
-.App-link {
-  color: #61dafb;
+.cmd {
+  border-radius: 16px;
+  font-size: 24px;
+  line-height: 1.4;
+  background-color: #44403c;
+  margin-bottom: 16px;
+  padding: 16px 24px;
+  letter-spacing: -1px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.cmd-buttons {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+}
+
+.cmd-buttons button {
+  border: none;
+  border-radius: 100px;
+  background-color: #78716c;
+  font-size: 18px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  color: inherit;
+  padding: 6px 12px;
+}
+
+.cmd-buttons button:hover {
+  background-color: #292524;
+}
+
+.cmd-buttons button:active {
+  background-color: #73d4db;
+}
+
+.cmd-content {
+  font-family: "Fira Code";
+  font-size: 20px;
+}
+
+.cmd-form {
+  border-radius: 16px;
+  background-color: #44403c;
+  margin-bottom: 40px;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cmd-form input,
+.cmd-form select {
+  width: 220px;
+  border: none;
+  border-radius: 16px;
+  padding: 16px;
+  font-size: 18px;
+  font-family: inherit;
+  color: inherit;
+  background-color: #78716c;
+}
+
+.cmd-form input:nth-child(2) {
+  flex-grow: 1;
+}
+
+.cmd-form input::placeholder {
+  color: #a8a29e;
+}
+
+.cmd-form span {
+  font-size: 600;
+  font-size: 18px;
+  margin-right: 18px;
+}
+
+.cmd-search {
+  border-radius: 16px;
+  background-color: #44403c;
+  margin-bottom: 40px;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cmd-search input {
+  width: 220px;
+  border: none;
+  border-radius: 16px;
+  padding: 16px;
+  font-size: 18px;
+  font-family: inherit;
+  color: inherit;
+  background-color: #78716c;
+}
+
+.hidden {
+  display: none;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  width: 80px;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 48px;
+  height: calc(100vh - 48px - 68px - 40px);
+}
+
+.disabled {
+  background-color: red;
+}
+.tag {
+  border-radius: 100px;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-family: "Coiny", sans-serif;
+  padding-top: 3px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* Scaling */
+@media (max-width: 1200px) {
+  .cmd {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
   }
-  to {
-    transform: rotate(360deg);
+}
+
+@media (max-width: 1100px) {
+  /* body {
+    padding: 32px 48px;
+  } */
+
+  .cmd-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cmd-form input,
+  .cmd-form select {
+    width: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .main {
+    grid-template-columns: 1fr;
   }
 }
