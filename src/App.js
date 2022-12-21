@@ -3,60 +3,77 @@ import supabase from "./supabase";
 import "./App.css";
 
 const CATEGORIES = [
-  { name: "CLI", color: "#2f8d46" },
+  { name: "CLI", color: "#008a00" },
   { name: "CSS", color: "#1774bb" },
   { name: "GIT", color: "#707071" },
-  { name: "HTML", color: "#f05c2a" },
+  { name: "HTML", color: "#f16529" },
   { name: "JavaScript", color: "#d8a52f" },
+  { name: "NGINX", color: "#35954e" },
   { name: "PHP", color: "#787cb4" },
   { name: "REGEX", color: "#c54131" },
   { name: "SQL", color: "#db2777" },
   { name: "WordPress", color: "#1b769c" },
 ];
 
-const initialCmds = [
-  {
-    id: 9,
-    text: "test4",
-    title: "test4",
-    category: "CLI",
-    tagged: 0,
-    createdIn: 2021,
-  },
-  {
-    id: 8,
-    text: "test2",
-    title: "test2",
-    category: "GIT",
-    tagged: 0,
-    createdIn: 2019,
-  },
-  {
-    id: 10,
-    text: "test1",
-    title: "test1",
-    category: "WordPress",
-    tagged: 1,
-    createdIn: 2015,
-  },
-];
-
+// Main Application
 function App() {
   const [showForm, setShowForm] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [cmds, setCmds] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentCategory, setCurrentCategory] = useState("all");
+
+  // Fetch cmds from DB for "recently added / all"
+  useEffect(
+    function () {
+      async function getCmds() {
+        setIsLoading(true);
+
+        let query = supabase.from("cmd").select("*");
+
+        if (currentCategory !== "all")
+          query = query.eq("category", currentCategory);
+
+        const { data: cmds, error } = await query
+          .order("id", { ascending: false })
+          .limit(1000);
+
+        if (!error) setCmds(cmds);
+        else alert("There was a problem getting data! Check the console.");
+
+        setIsLoading(false);
+      }
+      getCmds();
+    },
+    [currentCategory]
+  );
+
   return (
     <>
-      <Header showForm={showForm} setShowForm={setShowForm} />
-      {showForm ? <NewCmdForm /> : null}
-      <CmdSearch />
+      <Header
+        showForm={showForm}
+        setShowForm={setShowForm}
+        showSearch={showSearch}
+        setShowSearch={setShowSearch}
+      />
+      {showForm ? (
+        <NewCmdForm setCmds={setCmds} setShowForm={setShowForm} />
+      ) : null}
+      {!showForm ? <CmdSearch /> : null}
       <main className="main">
-        <CategoryFilter />
-        <CmdList />
+        <CategoryFilter setCurrentCategory={setCurrentCategory} />
+        {isLoading ? <Loader /> : <CmdList cmds={cmds} />}
       </main>
     </>
   );
 }
 
+// Loader
+function Loader() {
+  return <p className="message">Loading...</p>;
+}
+
+// Header Component
 function Header({ showForm, setShowForm }) {
   return (
     <header className="header">
@@ -68,20 +85,64 @@ function Header({ showForm, setShowForm }) {
       <button
         className="btn btn-large"
         onClick={() => setShowForm((show) => !show)}
-        style={!showForm ? null : { backgroundColor: "#643311" }}
+        style={!showForm ? null : { color: "#ee523f" }}
       >
         {showForm ? "Close" : "New"}
       </button>
     </header>
   );
 }
-function NewCmdForm() {
+
+// New CMD Form
+function NewCmdForm({ setCmds, setShowForm }) {
+  const [title, setTitle] = useState("");
+  const [text, setText] = useState("");
+  const [category, setCategory] = useState("");
+  const textLength = text.length;
+
+  function handleSubmit(e) {
+    // Prevent browser reload
+    e.preventDefault();
+
+    // Data validation
+    if (title && text && category && textLength <= 200) {
+      // Create new cmd object
+      const newCmd = {
+        id: Math.round(Math.random()) * 10,
+        text,
+        title,
+        category,
+        createdIn: new Date().getFullYear(),
+      };
+
+      // Add new cmd to UI
+      setCmds((cmds) => [newCmd, ...cmds]);
+
+      // Reset Input Fields
+      setTitle("");
+      setText("");
+      setCategory("");
+
+      // Close Form
+      setShowForm(false);
+    }
+  }
   return (
-    <form className="cmd-form">
-      <input type="text" placeholder="What is the CMD?" />
-      <input type="text" placeholder="<...>" />
-      <span>{200}</span>
-      <select>
+    <form className="cmd-form" onSubmit={handleSubmit}>
+      <input
+        value={title}
+        type="text"
+        placeholder="What is the CMD?"
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="<...>"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <span>{200 - textLength}</span>
+      <select value={category} onChange={(e) => setCategory(e.target.value)}>
         <option value="">Choose category:</option>
         {CATEGORIES.map((cat) => (
           <option key={cat.name} value={cat.name}>
@@ -96,25 +157,31 @@ function NewCmdForm() {
 
 function CmdSearch() {
   return (
-    <div className="cmd-form">
-      <input type="text" placeholder="..."></input>
+    <div className="cmd-search">
+      <input type="text" placeholder="Search..."></input>
       <button className="btn btn-large btn-post">🔎</button>
     </div>
   );
 }
 
-function CategoryFilter() {
+function CategoryFilter({ setCurrentCategory }) {
   return (
     <aside>
       <ul>
         <li>
-          <button className="btn btn-all-cmds">Recently Added</button>
+          <button
+            className="btn btn-all-cmds"
+            onClick={() => setCurrentCategory("all")}
+          >
+            Recently Added
+          </button>
         </li>
         {CATEGORIES.map((cat) => (
           <li key={cat.name} className="category">
             <button
               className="btn btn-category"
               style={{ backgroundColor: cat.color }}
+              onClick={() => setCurrentCategory(cat.name)}
             >
               {cat.name}
             </button>
@@ -125,8 +192,7 @@ function CategoryFilter() {
   );
 }
 
-function CmdList() {
-  const cmds = initialCmds;
+function CmdList({ cmds }) {
   return (
     <section>
       <ul className="cmds-list">

@@ -40,7 +40,7 @@ ul {
 }
 
 .btn {
-  border: none;
+  border: solid;
   border-radius: 16px;
   cursor: pointer;
   color: inherit;
@@ -49,7 +49,7 @@ ul {
   text-transform: uppercase;
   font-size: 17px;
   padding: 16px 0 13px;
-  background-color: #c16121;
+  background-color: #292524;
   transition: 0.3s;
 }
 
@@ -59,6 +59,7 @@ ul {
 }
 
 .btn-category {
+  border: none;
   width: 100%;
   background-image: none;
 }
@@ -73,11 +74,14 @@ ul {
 }
 
 .btn-post {
+  border: none;
   background-color: #1f7fa8;
 }
+
 .btn-post:hover {
   background-color: #35b3e9;
 }
+
 .category {
   margin-bottom: 16px;
 }
@@ -105,6 +109,9 @@ ul {
   display: flex;
   align-items: center;
   gap: 24px;
+}
+.cmd p {
+  flex-grow: 1;
 }
 
 .cmd-buttons {
@@ -196,6 +203,14 @@ ul {
   background-color: #78716c;
 }
 
+.cmd-search input:first-child {
+  flex-grow: 1;
+}
+
+.cmd-search input::placeholder {
+  color: #a8a29e;
+}
+
 .hidden {
   display: none;
 }
@@ -214,6 +229,12 @@ ul {
   grid-template-columns: 250px 1fr;
   gap: 48px;
   height: calc(100vh - 48px - 68px - 40px);
+}
+
+.message {
+  text-align: center;
+  font-size: 32px;
+  margin-top: 24px;
 }
 
 .disabled {
