@@ -9,7 +9,7 @@ body {
   background-color: #292524;
   color: #fafaf9;
   font-family: "Sono", sans-serif;
-  padding: 48px 64px 0px;
+  padding: 25px 64px 0px;
 }
 
 h1 {
@@ -20,9 +20,17 @@ h1 {
   margin-top: 6px;
 }
 
+main {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 48px;
+  /* height: 70vh; */
+}
+
 section {
   overflow: scroll;
   padding-bottom: 40px;
+  height: 70vh;
 }
 
 section::-webkit-scrollbar {
@@ -31,6 +39,11 @@ section::-webkit-scrollbar {
 
 ul {
   list-style: none;
+}
+
+#root {
+  max-width: 1500px;
+  margin: 0 auto;
 }
 
 /* Classes */
@@ -73,13 +86,9 @@ ul {
   padding: 20px 32px 17px;
 }
 
-.btn-post {
-  border: none;
-  background-color: #1f7fa8;
-}
-
 .btn-post:hover {
-  background-color: #35b3e9;
+  border-color: #35b3e9;
+  color: #35b3e9;
 }
 
 .category {
@@ -190,6 +199,7 @@ ul {
   display: flex;
   align-items: center;
   gap: 16px;
+  padding-left: 16px;
 }
 
 .cmd-search input {
@@ -201,6 +211,7 @@ ul {
   font-family: inherit;
   color: inherit;
   background-color: #78716c;
+  flex-grow: 1;
 }
 
 .cmd-search input:first-child {
@@ -209,6 +220,14 @@ ul {
 
 .cmd-search input::placeholder {
   color: #a8a29e;
+}
+
+.cmd-search span {
+  font-size: 46px;
+}
+
+.disabled {
+  background-color: red;
 }
 
 .hidden {
@@ -224,22 +243,12 @@ ul {
   width: 80px;
 }
 
-.main {
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  gap: 48px;
-  height: calc(100vh - 48px - 68px - 40px);
-}
-
 .message {
   text-align: center;
   font-size: 32px;
   margin-top: 24px;
 }
 
-.disabled {
-  background-color: red;
-}
 .tag {
   border-radius: 100px;
   text-transform: uppercase;

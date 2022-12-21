@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import supabase from "./supabase";
 import "./App.css";
 
+/***************************************************************
+Category Definitions
+***************************************************************/
 const CATEGORIES = [
   { name: "CLI", color: "#008a00" },
   { name: "CSS", color: "#1774bb" },
@@ -15,15 +18,23 @@ const CATEGORIES = [
   { name: "WordPress", color: "#1b769c" },
 ];
 
-// Main Application
+/***************************************************************
+Component: Main Application
+***************************************************************/
 function App() {
   const [showForm, setShowForm] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [cmds, setCmds] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentCategory, setCurrentCategory] = useState("all");
+  const [searchValue, setSearchValue] = useState("");
 
-  // Fetch cmds from DB for "recently added / all"
+  // Persistent Search Bar
+  function search(value) {
+    const filteredResults = cmds.filter((cmd) => cmd.title.includes(value));
+    return filteredResults;
+  }
+  // Fetch CMDs from DB for "recently added / all"
   useEffect(
     function () {
       async function getCmds() {
@@ -59,21 +70,39 @@ function App() {
       {showForm ? (
         <NewCmdForm setCmds={setCmds} setShowForm={setShowForm} />
       ) : null}
-      {!showForm ? <CmdSearch /> : null}
+      {!showForm ? (
+        <div className="cmd-search">
+          <span>🔎</span>
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchValue}
+            onChange={(event) => setSearchValue(event.target.value)}
+          />
+        </div>
+      ) : null}
       <main className="main">
         <CategoryFilter setCurrentCategory={setCurrentCategory} />
-        {isLoading ? <Loader /> : <CmdList cmds={cmds} />}
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <CmdList cmds={searchValue ? search(searchValue) : cmds} />
+        )}
       </main>
     </>
   );
 }
 
-// Loader
+/***************************************************************
+Component: Loader
+***************************************************************/
 function Loader() {
   return <p className="message">Loading...</p>;
 }
 
-// Header Component
+/***************************************************************
+Component: Header
+***************************************************************/
 function Header({ showForm, setShowForm }) {
   return (
     <header className="header">
@@ -93,30 +122,32 @@ function Header({ showForm, setShowForm }) {
   );
 }
 
-// New CMD Form
+/***************************************************************
+Component: Add New CMD
+***************************************************************/
 function NewCmdForm({ setCmds, setShowForm }) {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [category, setCategory] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const textLength = text.length;
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     // Prevent browser reload
     e.preventDefault();
 
     // Data validation
     if (title && text && category && textLength <= 200) {
-      // Create new cmd object
-      const newCmd = {
-        id: Math.round(Math.random()) * 10,
-        text,
-        title,
-        category,
-        createdIn: new Date().getFullYear(),
-      };
+      // Add new cmd to Supabase + receive cmd obj response
+      setIsUploading(true);
+      const { data: newCmd, error } = await supabase
+        .from("cmd")
+        .insert([{ title, text, category }])
+        .select();
+      setIsUploading(false);
 
       // Add new cmd to UI
-      setCmds((cmds) => [newCmd, ...cmds]);
+      setCmds((cmds) => [newCmd[0], ...cmds]);
 
       // Reset Input Fields
       setTitle("");
@@ -134,6 +165,7 @@ function NewCmdForm({ setCmds, setShowForm }) {
         type="text"
         placeholder="What is the CMD?"
         onChange={(e) => setTitle(e.target.value)}
+        disabled={isUploading}
       />
       <input
         type="text"
@@ -142,7 +174,11 @@ function NewCmdForm({ setCmds, setShowForm }) {
         onChange={(e) => setText(e.target.value)}
       />
       <span>{200 - textLength}</span>
-      <select value={category} onChange={(e) => setCategory(e.target.value)}>
+      <select
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        disabled={isUploading}
+      >
         <option value="">Choose category:</option>
         {CATEGORIES.map((cat) => (
           <option key={cat.name} value={cat.name}>
@@ -150,20 +186,16 @@ function NewCmdForm({ setCmds, setShowForm }) {
           </option>
         ))}
       </select>
-      <button className="btn btn-large btn-post">Post</button>
+      <button className="btn btn-large btn-post" disabled={isUploading}>
+        POST
+      </button>
     </form>
   );
 }
 
-function CmdSearch() {
-  return (
-    <div className="cmd-search">
-      <input type="text" placeholder="Search..."></input>
-      <button className="btn btn-large btn-post">🔎</button>
-    </div>
-  );
-}
-
+/***************************************************************
+Component: Category Filter
+***************************************************************/
 function CategoryFilter({ setCurrentCategory }) {
   return (
     <aside>
@@ -173,7 +205,7 @@ function CategoryFilter({ setCurrentCategory }) {
             className="btn btn-all-cmds"
             onClick={() => setCurrentCategory("all")}
           >
-            Recently Added
+            All
           </button>
         </li>
         {CATEGORIES.map((cat) => (
@@ -192,6 +224,9 @@ function CategoryFilter({ setCurrentCategory }) {
   );
 }
 
+/***************************************************************
+Component: List of CMDs
+***************************************************************/
 function CmdList({ cmds }) {
   return (
     <section>
@@ -205,7 +240,15 @@ function CmdList({ cmds }) {
   );
 }
 
+/***************************************************************
+Component: CMD Object
+***************************************************************/
+// Copy CMD to clipboard
 function Cmd({ cmd }) {
+  function copyText() {
+    navigator.clipboard.writeText(cmd.text);
+  }
+
   return (
     <li className="cmd">
       <h4>{cmd.title} </h4>
@@ -220,238 +263,12 @@ function Cmd({ cmd }) {
         {cmd.category}
       </span>
       <div className="cmd-buttons">
-        <button className="copy">📄</button>
+        <button className="copy" onClick={copyText}>
+          📄
+        </button>
       </div>
     </li>
   );
 }
-// function App() {
-//   const [showForm, setShowForm] = useState(false);
-//   const [cmds, setCmds] = useState([]);
-//   const [isLoading, setIsLoading] = useState(false);
-//   const [currentCategory, setCurrentCategory] = useState("tagged");
-
-//   useEffect(
-//     function () {
-//       async function getCmds() {
-//         setIsLoading(true);
-
-//         let query = supabase
-//           .from("cmd")
-//           .select("*")
-//           .eq("category", currentCategory);
-
-//         if (currentCategory === "tagged")
-//           query = supabase.from("cmd").select("*").eq("tagged", 1);
-
-//         const { data: cmds, error } = await query
-//           .order("title", { ascending: false })
-//           .limit(1000);
-
-//         if (!error) setCmds(cmds);
-//         else alert(`There was a problem getting data.`);
-
-//         setCmds(cmds);
-//         setIsLoading(false);
-//       }
-//       getCmds();
-//     },
-//     [currentCategory]
-//   );
-
-//   return (
-//     <>
-//       <Header showForm={showForm} setShowForm={setShowForm} />
-//       {showForm ? (
-//         <NewCmdForm setShowForm={setShowForm} setCmds={setCmds} />
-//       ) : null}
-
-//       <main className="main">
-//         <CategoryFilter setCurrentCategory={setCurrentCategory} />
-//         {isLoading ? <Loader /> : <CmdList cmds={cmds} setCmds={setCmds} />}
-//       </main>
-//     </>
-//   );
-// }
-
-// function Loader() {
-//   return <p className="message">Loading...</p>;
-// }
-
-// function Header({ showForm, setShowForm }) {
-//   const appTitle = "ommodum";
-//   return (
-//     <header className="header">
-//       <div className="logo">
-//         <img src="Commodum-logos_transparent.png" alt="Commodum Logo" />
-//         <h1>{appTitle}</h1>
-//       </div>
-//       <button
-//         className="btn btn-large btn-open"
-//         onClick={() => setShowForm((show) => !show)}
-//       >
-//         {showForm ? "Close" : "New"}
-//       </button>
-//     </header>
-//   );
-// }
-
-// function NewCmdForm({ setCmds, setShowForm }) {
-//   const [text, setText] = useState("");
-//   const [title, setTitle] = useState("");
-//   const [category, setCategory] = useState("");
-//   const [isUploading, setIsUploading] = useState(false);
-//   const textLength = text.length;
-
-//   async function handleSubmit(e) {
-//     e.preventDefault();
-
-//     if (text && title && textLength <= 200) {
-//       setIsUploading(true);
-//       const { data: newCmd, error } = await supabase
-//         .from("cmd")
-//         .insert([{ text, title, category }])
-//         .select();
-//       setIsUploading(false);
-//       if (!error) setCmds((cmds) => [newCmd[0], ...cmds]);
-//       setText("");
-//       setTitle("");
-//       setCategory("");
-//       setShowForm(false);
-//     }
-//   }
-
-//   return (
-//     <form className="cmd-form" onSubmit={handleSubmit}>
-//       <input
-//         type="text"
-//         placeholder="What is the CMD?"
-//         value={title}
-//         onChange={(e) => setTitle(e.target.value)}
-//         disabled={isUploading}
-//       />
-//       <input
-//         type="text"
-//         placeholder="<...>"
-//         value={text}
-//         onChange={(e) => setText(e.target.value)}
-//       />
-//       <span>{200 - textLength}</span>
-//       <select
-//         value={category}
-//         onChange={(e) => setCategory(e.target.value)}
-//         disabled={isUploading}
-//       >
-//         <option value="">Choose category:</option>
-//         {CATEGORIES.map((cat) => (
-//           <option key={cat.name} value={cat.name}>
-//             {cat.name.toUpperCase()}
-//           </option>
-//         ))}
-//       </select>
-//       <button className="btn btn-large" disabled={isUploading}>
-//         Post
-//       </button>
-//     </form>
-//   );
-// }
-
-// function CategoryFilter({ setCmds, setCurrentCategory }) {
-//   return (
-//     <aside>
-//       <ul>
-//         <li className="category">
-//           <button
-//             className="btn btn-tagged-cmds"
-//             onClick={() => setCurrentCategory("tagged")}
-//           >
-//             📑
-//           </button>
-//         </li>
-//         {CATEGORIES.map((cat) => (
-//           <li
-//             key={cat.name}
-//             className="category"
-//             onClick={() => setCurrentCategory(cat.name)}
-//           >
-//             <button
-//               className="btn btn-category"
-//               style={{ backgroundColor: cat.color }}
-//             >
-//               {cat.name}
-//             </button>
-//           </li>
-//         ))}
-//       </ul>
-//     </aside>
-//   );
-// }
-
-// function CmdList({ cmds, setCmds }) {
-//   if (cmds.length === 0)
-//     return <p className="message">No cmds for this category yet!</p>;
-
-//   return (
-//     <section>
-//       <ul className="cmds-list">
-//         {cmds.map((cmd) => (
-//           <Cmd key={cmd.id} cmd={cmd} setCmds={setCmds} />
-//         ))}
-//       </ul>
-//       <p>There are {cmds.length} cmd(s) in this category.</p>
-//     </section>
-//   );
-// }
-
-// function Cmd({ cmd, setCmds }) {
-//   const [isTagged, setIsTagged] = useState(false);
-//   async function handleTag(columnName) {
-//     setIsTagged(true);
-//     if (cmd[columnName] === 0) {
-//       const { data: updatedCmd, error } = await supabase
-//         .from("cmd")
-//         .update({ [columnName]: cmd[columnName] + 1 })
-//         .eq("id", cmd.id)
-//         .select();
-//       if (!error)
-//         setCmds((cmds) =>
-//           cmds.map((c) => (c.id === cmd.id ? updatedCmd[0] : c))
-//         );
-//       setIsTagged(true);
-//     } else {
-//       const { data: updatedCmd, error } = await supabase
-//         .from("cmd")
-//         .update({ [columnName]: cmd[columnName] - 1 })
-//         .eq("id", cmd.id)
-//         .select();
-//       setIsTagged(false);
-//       if (!error)
-//         setCmds((cmds) =>
-//           cmds.map((c) => (c.id === cmd.id ? updatedCmd[0] : c))
-//         );
-//     }
-//     setIsTagged(false);
-//   }
-
-//   return (
-//     <li className="cmd">
-//       <h4>{cmd.title} </h4>
-//       <p className="cmd-content ">{cmd.text}</p>
-//       <span
-//         className="tag"
-//         style={{
-//           backgroundColor: CATEGORIES.find((cat) => cat.name === cmd.category)
-//             .color,
-//         }}
-//       >
-//         {cmd.category}
-//       </span>
-//       <div className="cmd-buttons">
-//         <button onClick={() => handleTag("tagged")}>📑 {cmd.bookmark}</button>
-//         <button className="copy">📄</button>
-//       </div>
-//     </li>
-//   );
-// }
 
 export default App;
