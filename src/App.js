@@ -31,7 +31,10 @@ function App() {
 
   // Persistent Search Bar
   function search(value) {
-    const filteredResults = cmds.filter((cmd) => cmd.title.includes(value));
+    const searchValue = value.toLowerCase();
+    const filteredResults = cmds.filter((cmd) =>
+      cmd.title.toLowerCase().includes(value)
+    );
     return filteredResults;
   }
   // Fetch CMDs from DB for "recently added / all"
