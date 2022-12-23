@@ -140,7 +140,7 @@ function NewCmdForm({ setCmds, setShowForm }) {
     e.preventDefault();
 
     // Data validation
-    if (title && text && category && textLength <= 200) {
+    if (title && text && category && textLength <= 500) {
       // Add new cmd to Supabase + receive cmd obj response
       setIsUploading(true);
       const { data: newCmd, error } = await supabase
@@ -176,7 +176,7 @@ function NewCmdForm({ setCmds, setShowForm }) {
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
-      <span>{200 - textLength}</span>
+      <span>{500 - textLength}</span>
       <select
         value={category}
         onChange={(e) => setCategory(e.target.value)}
