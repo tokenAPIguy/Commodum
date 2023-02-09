@@ -1,0 +1,31 @@
+.form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.input {
+  font-size: 17px;
+  font-family: "Sono", sans-serif;
+  color: #fafaf9;
+  border-radius: 16px;
+  background-color: #44403c;
+  margin-bottom: 40px;
+  margin-top: 40px;
+  padding: 16px 32px;
+  display: flex;
+  gap: 16px;
+  width: 550px;
+  border-style: hidden;
+}
+
+.input::placeholder {
+  color: #a8a29e;
+}
+
+.input:focus {
+  outline: none;
+}
+
+.submit {
+  text-align: center;
+}
