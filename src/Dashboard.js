@@ -31,9 +31,11 @@ function App() {
 
   // Persistent Search Bar
   function search(value) {
-    const searchValue = value.toLowerCase();
-    const filteredResults = cmds.filter((cmd) =>
-      cmd.title.toLowerCase().includes(value)
+    value = value.toLowerCase();
+    const filteredResults = cmds.filter(
+      (cmd) =>
+        cmd.title.toLowerCase().includes(value) ||
+        cmd.text.toLowerCase().includes(value)
     );
     return filteredResults;
   }
