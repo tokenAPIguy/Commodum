@@ -39,6 +39,7 @@ function App() {
     );
     return filteredResults;
   }
+
   // Fetch CMDs from DB for "recently added / all"
   useEffect(
     function () {
@@ -63,6 +64,16 @@ function App() {
     },
     [currentCategory]
   );
+
+  // Delete Commands
+  async function handleDelete(id) {
+    const { error } = await supabase.from("cmd").delete().eq("id", id);
+    if (error) {
+      console.log(error);
+    } else {
+      setCmds((cmds) => cmds.filter((cmd) => cmd.id !== id));
+    }
+  }
 
   return (
     <>
@@ -91,7 +102,10 @@ function App() {
         {isLoading ? (
           <Loader />
         ) : (
-          <CmdList cmds={searchValue ? search(searchValue) : cmds} />
+          <CmdList
+            cmds={searchValue ? search(searchValue) : cmds}
+            handleDelete={handleDelete}
+          />
         )}
       </main>
     </>
@@ -151,6 +165,12 @@ function NewCmdForm({ setCmds, setShowForm }) {
         .select();
       setIsUploading(false);
 
+      if (error) {
+        console.log("error:", error);
+      }
+      if (newCmd) {
+        console.log("data:", newCmd);
+      }
       // Add new cmd to UI
       setCmds((cmds) => [newCmd[0], ...cmds]);
 
@@ -163,6 +183,7 @@ function NewCmdForm({ setCmds, setShowForm }) {
       setShowForm(false);
     }
   }
+
   return (
     <form className="cmd-form" onSubmit={handleSubmit}>
       <input
@@ -232,12 +253,12 @@ function CategoryFilter({ setCurrentCategory }) {
 /***************************************************************
 Component: List of CMDs
 ***************************************************************/
-function CmdList({ cmds }) {
+function CmdList({ cmds, handleDelete }) {
   return (
     <section>
       <ul className="cmds-list">
         {cmds.map((cmd) => (
-          <Cmd key={cmd.id} cmd={cmd} />
+          <Cmd key={cmd.id} cmd={cmd} handleDelete={handleDelete} />
         ))}
       </ul>
       <p>There are {cmds.length} cmd(s) in this category.</p>
@@ -248,16 +269,25 @@ function CmdList({ cmds }) {
 /***************************************************************
 Component: CMD Object
 ***************************************************************/
-// Copy CMD to clipboard
-function Cmd({ cmd }) {
+function Cmd({ cmd, handleDelete }) {
+  // Copy CMD to clipboard
   function copyText() {
     navigator.clipboard.writeText(cmd.text);
+  }
+
+  // Delete CMD
+  async function onDelete() {
+    if (window.confirm("Are you sure?") === true) {
+      await handleDelete(cmd.id);
+    }
   }
 
   return (
     <li className="cmd">
       <h4>{cmd.title} </h4>
-      <p className="cmd-content ">{cmd.text}</p>
+      <p className="cmd-content" contenteditable="true" spellcheck="false">
+        {cmd.text}
+      </p>
       <span
         className="tag"
         style={{
@@ -272,8 +302,12 @@ function Cmd({ cmd }) {
           📄
         </button>
       </div>
+      <div className="cmd-buttons">
+        <button className="copy" onClick={onDelete}>
+          ❌
+        </button>
+      </div>
     </li>
   );
 }
-
 export default App;

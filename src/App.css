@@ -119,8 +119,14 @@ ul {
   align-items: center;
   gap: 24px;
 }
+
 .cmd p {
   flex-grow: 1;
+}
+
+.cmd p:focus {
+  outline: none;
+  background-color: #58534e;
 }
 
 .cmd-buttons {
@@ -191,6 +197,10 @@ ul {
   margin-right: 18px;
 }
 
+.cmd-form input:focus {
+  outline: none;
+}
+
 .cmd-search {
   border-radius: 16px;
   background-color: #44403c;
@@ -220,6 +230,10 @@ ul {
 
 .cmd-search input::placeholder {
   color: #a8a29e;
+}
+
+.cmd-search input:focus {
+  outline: none;
 }
 
 .cmd-search span {
