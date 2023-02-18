@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRef } from "react";
 import supabase from "./supabase";
 import "./App.css";
 
@@ -270,11 +271,13 @@ function CmdList({ cmds, handleDelete }) {
 Component: CMD Object
 ***************************************************************/
 function Cmd({ cmd, handleDelete }) {
-  // Copy CMD to clipboard
-  function copyText() {
-    navigator.clipboard.writeText(cmd.text);
-  }
+  const cmdContentRef = useRef(null);
 
+  function copyText() {
+    const textToCopy = cmdContentRef.current.textContent;
+    navigator.clipboard.writeText(textToCopy);
+    console.log(textToCopy);
+  }
   // Delete CMD
   async function onDelete() {
     if (window.confirm("Are you sure?") === true) {
@@ -285,7 +288,12 @@ function Cmd({ cmd, handleDelete }) {
   return (
     <li className="cmd">
       <h4>{cmd.title} </h4>
-      <p className="cmd-content" contenteditable="true" spellcheck="false">
+      <p
+        className="cmd-content"
+        contentEditable="true"
+        spellCheck="false"
+        ref={cmdContentRef}
+      >
         {cmd.text}
       </p>
       <span
