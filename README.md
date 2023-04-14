@@ -32,12 +32,12 @@ https://user-images.githubusercontent.com/77429039/209209373-57604037-297c-4965-
    v1.0.1 - Add search functionality ☑
   </li>
   <li>
-   v1.0.2 - Add CRUD Ops 🟦
+   v1.0.2 - Add CRUD Ops ☑️
   </li>
   <li>
    v1.0.3 - Add ability to add/remove categories 🟦
   </li>
   <li>
-  v1.0.4 -  Add user authentication 🟦
+  v1.0.4 -  Add user authentication ☑️
   </li>
 </ul>
